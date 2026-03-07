@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Search,
   Grid,
@@ -49,6 +49,12 @@ function App() {
   const [images, setImages] = useState(recentImages); // This replaces your "recentImages"
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      handleSearch();
+    }
+  }, [provider, orientation]);
+
   // API Keys (Replace these with your actual keys)
   const API_KEYS = {
     unsplash: import.meta.env.VITE_UNSPLASH_KEY,
@@ -56,57 +62,83 @@ function App() {
     pixabay: import.meta.env.VITE_PIXABAY_KEY,
   };
 
-  // 2. Search Logic
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
-    setLoading(true);
+  const PROVIDERS = {
+    Unsplash: {
+      buildUrl: (query, orientation, keys) =>
+        `https://api.unsplash.com/search/photos?query=${query}&orientation=${orientation}&client_id=${keys.unsplash}`,
 
-    try {
-      let url = "";
-      let headers = {};
+      headers: () => ({}),
 
-      if (provider === "Unsplash") {
-        url = `https://api.unsplash.com/search/photos?query=${searchQuery}&orientation=${orientation}&client_id=${API_KEYS.unsplash}`;
-      } else if (provider === "Pexels") {
-        url = `https://api.pexels.com/v1/search?query=${searchQuery}&orientation=${orientation}`;
-        headers = { Authorization: API_KEYS.pexels };
-      } else if (provider === "Pixabay") {
-        // Pixabay uses "horizontal" instead of "landscape"
+      normalize: (data) =>
+        data.results.map((img) => ({
+          id: img.id,
+          url: img.urls.small,
+          name: img.user.name,
+          source: "UNSPLASH",
+          size: "HD",
+        })),
+    },
+
+    Pexels: {
+      buildUrl: (query, orientation) =>
+        `https://api.pexels.com/v1/search?query=${query}&orientation=${orientation}`,
+
+      headers: (keys) => ({
+        Authorization: keys.pexels,
+      }),
+
+      normalize: (data) =>
+        data.photos.map((img) => ({
+          id: img.id,
+          url: img.src.medium,
+          name: img.photographer,
+          source: "PEXELS",
+          size: "HD",
+        })),
+    },
+
+    Pixabay: {
+      buildUrl: (query, orientation, keys) => {
         const pixOrient =
           orientation === "landscape"
             ? "horizontal"
             : orientation === "portrait"
               ? "vertical"
               : "all";
-        url = `https://pixabay.com/api/?key=${API_KEYS.pixabay}&q=${encodeURIComponent(searchQuery)}&orientation=${pixOrient}`;
-      }
 
-      const response = await fetch(url, { headers });
-      const data = await response.json();
+        return `https://pixabay.com/api/?key=${keys.pixabay}&q=${encodeURIComponent(query)}&orientation=${pixOrient}`;
+      },
 
-      // Normalize data based on provider structure
-      let results = [];
-      if (provider === "Unsplash")
-        results = data.results.map((img) => ({
-          id: img.id,
-          url: img.urls.small,
-          name: img.user.name,
-          source: "UNSPLASH",
-        }));
-      if (provider === "Pexels")
-        results = data.photos.map((img) => ({
-          id: img.id,
-          url: img.src.medium,
-          name: img.photographer,
-          source: "PEXELS",
-        }));
-      if (provider === "Pixabay")
-        results = data.hits.map((img) => ({
+      headers: () => ({}),
+
+      normalize: (data) =>
+        data.hits.map((img) => ({
           id: img.id,
           url: img.webformatURL,
           name: img.user,
           source: "PIXABAY",
-        }));
+          size: "HD",
+        })),
+    },
+  };
+
+  // 2. Search Logic
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+
+    setLoading(true);
+
+    try {
+      const providerConfig = PROVIDERS[provider];
+
+      const url = providerConfig.buildUrl(searchQuery, orientation, API_KEYS);
+
+      const headers = providerConfig.headers(API_KEYS);
+
+      const response = await fetch(url, { headers });
+      const data = await response.json();
+
+      const results = providerConfig.normalize(data);
 
       setImages(results);
     } catch (error) {
@@ -154,9 +186,9 @@ function App() {
               onChange={(e) => setProvider(e.target.value)}
               className="w-full appearance-none pl-3 pr-8 py-2 bg-[#252529] rounded-lg text-xs font-semibold text-white border border-gray-800 outline-none cursor-pointer"
             >
-              <option>Unsplash</option>
-              <option>Pexels</option>
-              <option>Pixabay</option>
+              <option value="Unsplash">Unsplash</option>
+              <option value="Pexels">Pexels</option>
+              <option value="Pixabay">Pixabay</option>
             </select>
             <ChevronDown
               size={12}
@@ -167,13 +199,12 @@ function App() {
           <div className="flex-1 relative">
             <select
               value={orientation}
-              onChange={(e) => setOrientation(e.target.value)}
+              onChange={(e) => setOrientation(e.target.value.toLowerCase())}
               className="w-full appearance-none pl-3 pr-8 py-2 bg-[#252529] rounded-lg text-xs font-semibold text-white border border-gray-800 outline-none cursor-pointer"
             >
-              <option>Landscape</option>
-              <option>Portrait</option>
-              <option>Square</option>
-              <option>All</option>
+              <option value="landscape">Landscape</option>
+              <option value="portrait">Portrait</option>
+              <option value="square">Square</option>
             </select>
             <ChevronDown
               size={12}
@@ -214,12 +245,16 @@ function App() {
               key={image.id}
               className="relative bg-[#252529] rounded-2xl overflow-hidden flex flex-col h-56 border border-gray-800/50"
             >
-              <div
-                className={`flex-1 flex items-center justify-center ${image.color} relative`}
-              >
-                <span className="text-[9px] text-gray-500">
-                  Image {image.id}
-                </span>
+              <div className="flex-1 relative">
+                {image.url ? (
+                  <img
+                    src={image.url}
+                    alt={image.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className={`w-full h-full ${image.color}`} />
+                )}
                 <Bookmark
                   size={16}
                   className="absolute top-3 right-3 text-gray-400 opacity-60 hover:text-white cursor-pointer"
