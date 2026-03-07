@@ -1,0 +1,8 @@
+{
+  "name": "Free Stock Images",
+  "description": "Brief description",
+  "code": "/plugin.js",
+  "icon": "/icon.png",
+  "permissions": ["content:read", "content:write"],
+  "version": "1.0.0"
+}
