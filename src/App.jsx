@@ -174,43 +174,44 @@ function App() {
   };
 
   return (
-    <div className="w-screen h-screen bg-[#1c1c21] text-gray-300 font-sans flex flex-col overflow-hidden">
-      {/* 1. COMPACT HEADER */}
-
-      <div className="px-4 py-2 space-y-3">
-        {/* 2. SEARCH BAR */}
-
-        <div className="relative">
+    <div className="w-screen h-screen bg-[#0f0f12] text-slate-300 font-sans flex flex-col overflow-hidden selection:bg-teal-500/30">
+      {/* HEADER SECTION */}
+      <header className="px-5 pt-6 pb-4 space-y-4 border-b border-white/5 bg-[#0f0f12]/80 backdrop-blur-xl z-20">
+        <div className="relative group">
           <Search
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"
+            className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-300 ${loading ? "text-teal-500 animate-pulse" : "text-slate-500 group-focus-within:text-teal-500"}`}
             size={18}
           />
-
           <input
             type="text"
-            placeholder="Search for images..."
+            placeholder="Search high-quality images..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-full pl-11 pr-4 py-3 bg-[#252529] rounded-xl text-white border-none focus:ring-1 focus:ring-[#14b8a6] outline-none placeholder-gray-500 text-sm"
+            className="w-full pl-12 pr-4 py-3.5 bg-white/5 rounded-2xl text-white border border-white/10 focus:border-teal-500/50 focus:ring-4 focus:ring-teal-500/10 outline-none placeholder-slate-500 text-sm transition-all"
           />
+          {loading && (
+            <Loader2
+              className="absolute right-4 top-1/2 -translate-y-1/2 animate-spin text-teal-500"
+              size={16}
+            />
+          )}
         </div>
 
-        {/* 3. FILTERS - Smaller buttons */}
         <div className="flex gap-2">
-          <div className="flex-1 relative">
+          <div className="flex-1 relative group">
             <select
               value={provider}
               onChange={(e) => setProvider(e.target.value)}
-              className="w-full appearance-none pl-3 pr-8 py-2 bg-[#252529] rounded-lg text-xs font-semibold text-white border border-gray-800 outline-none cursor-pointer"
+              className="w-full appearance-none pl-3 pr-8 py-2 bg-[#252529] rounded-lg font-semibold text-white border border-gray-800 outline-none cursor-pointer"
             >
               <option value="Unsplash">Unsplash</option>
               <option value="Pexels">Pexels</option>
               <option value="Pixabay">Pixabay</option>
             </select>
             <ChevronDown
-              size={12}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+              size={14}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"
             />
           </div>
 
@@ -218,89 +219,73 @@ function App() {
             <select
               value={orientation}
               onChange={(e) => setOrientation(e.target.value.toLowerCase())}
-              className="w-full appearance-none pl-3 pr-8 py-2 bg-[#252529] rounded-lg text-xs font-semibold text-white border border-gray-800 outline-none cursor-pointer"
+              className="w-full appearance-none pl-3 pr-8 py-2 bg-[#252529] rounded-lg font-semibold text-white border border-gray-800 outline-none cursor-pointer"
             >
               <option value="landscape">Landscape</option>
               <option value="portrait">Portrait</option>
               <option value="square">Square</option>
             </select>
             <ChevronDown
-              size={12}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+              size={14}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"
             />
           </div>
 
-          <button className="flex-1 px-3 py-2 bg-[#252529] rounded-lg text-xs font-semibold text-gray-500 border border-gray-800 text-left">
-            Keyword
-          </button>
-        </div>
-
-        {/* 4. ACTION BAR - High visibility buttons */}
-        <div className="flex items-center gap-2 pt-1">
-          <button
-            onClick={handleSearch}
-            className="flex-1 bg-[#14b8a6] text-[#1c1c21] py-2 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:bg-[#0d9488] transition-colors"
-          >
-            Search
+          <button className="px-3 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 hover:text-white transition-all">
+            Insert
           </button>
 
-          <span className="text-[10px] text-gray-400 font-bold px-1">
-            Recent
-          </span>
-
-          <button className="flex-1 flex items-center justify-center gap-1.5 bg-[#14b8a6] text-[#1c1c21] py-2 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:bg-[#0d9488] transition-colors">
-            <Download size={14} /> Insert
-          </button>
-
-          <button className="p-2 bg-[#252529] rounded-lg text-gray-300 border border-gray-800 hover:text-white">
+          <button className="px-3 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 hover:text-white transition-all">
             <Bookmark size={16} />
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* 5. IMAGE GRID */}
-      <main className="flex-1 px-4 overflow-y-auto mt-2 custom-scrollbar">
-        <div className="grid grid-cols-2 gap-3 pb-4">
+      {/* MAIN GRID AREA */}
+      <main className="flex-1 px-5 overflow-y-auto custom-scrollbar bg-[#0f0f12]">
+        <div className="grid grid-cols-2 gap-4 py-6">
           {images.map((image) => (
             <div
               key={image.id}
-              className="relative bg-[#252529] rounded-2xl overflow-hidden flex flex-col h-56 border border-gray-800/50"
+              onClick={() => setSelectedImage(image)}
+              className={`group relative bg-white/5 rounded-2xl overflow-hidden flex flex-col h-60 cursor-pointer transition-all duration-300 border ${
+                selectedImage?.id === image.id ? "ring-2 ring-[#14b8a6]" : ""
+              }`}
             >
-              <div
-                className={`flex-1 relative cursor-pointer ${
-                  selectedImage?.id === image.id ? "ring-2 ring-[#14b8a6]" : ""
-                }`}
-                onClick={() => setSelectedImage(image)}
-              >
+              {/* Image Container */}
+              <div className="flex-1 relative overflow-hidden">
                 {image.url ? (
                   <img
                     src={image.url}
                     alt={image.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                 ) : (
                   <div className={`w-full h-full ${image.color}`} />
                 )}
-                <Bookmark
-                  size={16}
-                  className="absolute top-3 right-3 text-gray-400 opacity-60 hover:text-white cursor-pointer"
-                />
+
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                <button className="absolute top-3 right-3 p-1.5 rounded-lg bg-black/20 backdrop-blur-md border border-white/10 text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-teal-500 hover:border-teal-500">
+                  <Bookmark size={14} />
+                </button>
               </div>
 
-              <div className="p-3 space-y-2">
-                <div className="text-sm font-bold text-white truncate">
+              {/* Metadata */}
+              <div className="p-3 bg-[#16161a]">
+                <p className="text-[11px] font-semibold text-white truncate mb-2">
                   {image.name}
-                </div>
+                </p>
                 <div className="flex items-center justify-between">
                   <div className="flex gap-1.5">
-                    <span className="text-[8px] bg-[#1c1c21] text-[#14b8a6] px-1.5 py-0.5 rounded font-black">
+                    <span className="text-[9px] bg-teal-500/10 text-teal-400 px-2 py-0.5 rounded-md font-bold border border-teal-500/20">
                       {image.source}
                     </span>
-                    <span className="text-[8px] bg-[#1c1c21] text-gray-500 px-1.5 py-0.5 rounded font-black">
+                    <span className="text-[9px] bg-white/5 text-slate-400 px-2 py-0.5 rounded-md font-bold">
                       {image.size}
                     </span>
                   </div>
-                  <Bookmark size={14} className="text-gray-500" />
                 </div>
               </div>
             </div>
@@ -308,22 +293,30 @@ function App() {
         </div>
       </main>
 
-      {/* 6. SMALLER FOOTER */}
-      <footer className="p-3 flex gap-2 border-t border-gray-800/20 bg-[#1c1c21]">
-        <button className="flex-1 flex flex-col items-center justify-center gap-1 py-2 bg-[#252529] rounded-xl text-gray-500 hover:text-white transition-colors">
-          <ImageIcon size={16} />
-          <span className="text-[9px] font-bold">As background</span>
+      {/* FOOTER ACTIONS */}
+      <footer className="p-4 grid grid-cols-3 gap-3 border-t border-white/5 bg-[#0f0f12] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+        <button className="flex flex-col items-center justify-center gap-1.5 py-3 bg-white/5 rounded-2xl text-slate-300 hover:bg-white/10 hover:text-white transition-all active:scale-95">
+          <ImageIcon size={18} strokeWidth={1.5} />
+          <span className="text-[12px] font-bold  tracking-tight">
+            As Background
+          </span>
         </button>
+
         <button
           onClick={insertIntoFrame}
-          className="flex-1 flex flex-col items-center justify-center gap-1 py-2 bg-[#252529] rounded-xl text-[#14b8a6] border border-[#14b8a6]/30"
+          className={`flex flex-col items-center justify-center gap-1.5 py-3 bg-white/5 rounded-2xl text-slate-300 hover:bg-white/10 hover:text-white transition-all active:scale-95`}
         >
-          <Hash size={18} strokeWidth={2.5} />
-          <span className="text-[9px] font-bold">Into frame</span>
+          <Hash size={20} strokeWidth={1.5} />
+          <span className="text-[12px] font-bold  tracking-tight">
+            Into Frame
+          </span>
         </button>
-        <button className="flex-1 flex flex-col items-center justify-center gap-1 py-2 bg-[#252529] rounded-xl text-gray-500 hover:text-white transition-colors">
-          <Maximize size={16} />
-          <span className="text-[9px] font-bold">Auto-resize</span>
+
+        <button className="flex flex-col items-center justify-center gap-1.5 py-3 bg-white/5 rounded-2xl text-slate-300 hover:bg-white/10 hover:text-white transition-all active:scale-95">
+          <Maximize size={18} strokeWidth={1.5} />
+          <span className="text-[12px] font-bold  tracking-tight">
+            Auto-Size
+          </span>
         </button>
       </footer>
     </div>
