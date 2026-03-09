@@ -8,24 +8,28 @@ penpot.ui.onMessage(async (message) => {
 
   if (message.type === "insert-image" && message.imageUrl) {
     try {
-      // 1) Upload external image to Penpot
       const imageData = await penpot.uploadMediaUrl(
         "stock-image.jpg",
         message.imageUrl,
       );
 
-      // 2) Create rectangle with fixed geometry (no later mutation)
-      const width = 800;
-      const height = 450;
+      // FULL ORIGINAL SIZE
+      const width = message.width || 800;
+      const height = message.height || 600;
+
+      // FORCE ON-CANVAS: Top-left quadrant, visible
+      const x = 50;
+      const y = 50;
+
+      console.log(`Creating ${width}x${height} at (${x}, ${y})`);
 
       const rect = penpot.createRectangle({
-        x: penpot.viewport.center.x - width / 2,
-        y: penpot.viewport.center.y - height / 2,
+        x,
+        y,
         width,
         height,
       });
 
-      // 3) Apply image fill using API's schema
       rect.fills = [
         {
           fillOpacity: 1,
@@ -33,9 +37,9 @@ penpot.ui.onMessage(async (message) => {
         },
       ];
 
-      console.log("✅ Image rectangle created!", rect.fills);
+      console.log("✅ Rect created. Check layers panel for size.");
     } catch (error) {
-      console.error("❌ Fill error:", error);
+      console.error("❌ Error:", error);
     }
   }
 });

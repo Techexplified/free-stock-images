@@ -77,6 +77,8 @@ function App() {
           name: img.user.name,
           source: "UNSPLASH",
           size: "HD",
+          width: img.width,
+          height: img.height,
         })),
     },
 
@@ -95,6 +97,8 @@ function App() {
           name: img.photographer,
           source: "PEXELS",
           size: "HD",
+          width: img.width,
+          height: img.height,
         })),
     },
 
@@ -119,6 +123,8 @@ function App() {
           name: img.user,
           source: "PIXABAY",
           size: "HD",
+          width: img.imageWidth,
+          height: img.imageHeight,
         })),
     },
   };
@@ -165,6 +171,8 @@ function App() {
           type: "insert-image",
           imageUrl: selectedImage.url, // Send URL first (faster)
           imageData: null, // Fallback
+          width: selectedImage.width,
+          height: selectedImage.height,
         },
         "*",
       );
