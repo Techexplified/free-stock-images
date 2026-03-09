@@ -48,6 +48,7 @@ function App() {
   const [orientation, setOrientation] = useState("landscape");
   const [images, setImages] = useState(recentImages); // This replaces your "recentImages"
   const [loading, setLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     if (searchQuery.trim()) {
@@ -148,11 +149,28 @@ function App() {
     }
   };
 
-  console.log(images);
+  console.log(selectedImage);
 
   // Trigger search on Enter key
   const handleKeyDown = (e) => {
     if (e.key === "Enter") handleSearch();
+  };
+
+  const insertIntoFrame = async () => {
+    if (!selectedImage?.url) return;
+
+    try {
+      window.parent.postMessage(
+        {
+          type: "insert-image",
+          imageUrl: selectedImage.url, // Send URL first (faster)
+          imageData: null, // Fallback
+        },
+        "*",
+      );
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -219,7 +237,10 @@ function App() {
 
         {/* 4. ACTION BAR - High visibility buttons */}
         <div className="flex items-center gap-2 pt-1">
-          <button className="flex-1 bg-[#14b8a6] text-[#1c1c21] py-2 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:bg-[#0d9488] transition-colors">
+          <button
+            onClick={handleSearch}
+            className="flex-1 bg-[#14b8a6] text-[#1c1c21] py-2 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:bg-[#0d9488] transition-colors"
+          >
             Search
           </button>
 
@@ -245,7 +266,12 @@ function App() {
               key={image.id}
               className="relative bg-[#252529] rounded-2xl overflow-hidden flex flex-col h-56 border border-gray-800/50"
             >
-              <div className="flex-1 relative">
+              <div
+                className={`flex-1 relative cursor-pointer ${
+                  selectedImage?.id === image.id ? "ring-2 ring-[#14b8a6]" : ""
+                }`}
+                onClick={() => setSelectedImage(image)}
+              >
                 {image.url ? (
                   <img
                     src={image.url}
@@ -288,7 +314,10 @@ function App() {
           <ImageIcon size={16} />
           <span className="text-[9px] font-bold">As background</span>
         </button>
-        <button className="flex-1 flex flex-col items-center justify-center gap-1 py-2 bg-[#252529] rounded-xl text-[#14b8a6] border border-[#14b8a6]/30">
+        <button
+          onClick={insertIntoFrame}
+          className="flex-1 flex flex-col items-center justify-center gap-1 py-2 bg-[#252529] rounded-xl text-[#14b8a6] border border-[#14b8a6]/30"
+        >
           <Hash size={18} strokeWidth={2.5} />
           <span className="text-[9px] font-bold">Into frame</span>
         </button>
