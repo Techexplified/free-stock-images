@@ -1,6 +1,6 @@
 penpot.ui.open("Free Stock Images", "/index.html", {
   width: 500,
-  height: 600,
+  height: 700,
 });
 
 penpot.ui.onMessage(async (message) => {

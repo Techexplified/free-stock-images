@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
+
 import {
   Search,
-  Grid,
   ChevronDown,
-  Download,
   Bookmark,
   Image as ImageIcon,
   Maximize,
   Hash,
+  Loader2,
 } from "lucide-react";
 
 const recentImages = [
@@ -176,7 +176,7 @@ function App() {
   return (
     <div className="w-screen h-screen bg-[#0f0f12] text-slate-300 font-sans flex flex-col overflow-hidden selection:bg-teal-500/30">
       {/* HEADER SECTION */}
-      <header className="px-5 pt-6 pb-4 space-y-4 border-b border-white/5 bg-[#0f0f12]/80 backdrop-blur-xl z-20">
+      <header className="px-4 py-2 space-y-3 border-b border-white/5 bg-[#0f0f12]/80 backdrop-blur-xl z-20">
         <div className="relative group">
           <Search
             className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-300 ${loading ? "text-teal-500 animate-pulse" : "text-slate-500 group-focus-within:text-teal-500"}`}
@@ -203,7 +203,7 @@ function App() {
             <select
               value={provider}
               onChange={(e) => setProvider(e.target.value)}
-              className="w-full appearance-none pl-3 pr-8 py-2 bg-[#252529] rounded-lg font-semibold text-white border border-gray-800 outline-none cursor-pointer"
+              className="w-full text-xs appearance-none pl-3 pr-8 py-2 bg-[#252529] rounded-lg font-semibold text-white border border-gray-800 outline-none cursor-pointer"
             >
               <option value="Unsplash">Unsplash</option>
               <option value="Pexels">Pexels</option>
@@ -219,7 +219,7 @@ function App() {
             <select
               value={orientation}
               onChange={(e) => setOrientation(e.target.value.toLowerCase())}
-              className="w-full appearance-none pl-3 pr-8 py-2 bg-[#252529] rounded-lg font-semibold text-white border border-gray-800 outline-none cursor-pointer"
+              className="w-full  text-xs  appearance-none pl-3 pr-8 py-2 bg-[#252529] rounded-lg font-semibold text-white border border-gray-800 outline-none cursor-pointer"
             >
               <option value="landscape">Landscape</option>
               <option value="portrait">Portrait</option>
@@ -243,12 +243,12 @@ function App() {
 
       {/* MAIN GRID AREA */}
       <main className="flex-1 px-5 overflow-y-auto custom-scrollbar bg-[#0f0f12]">
-        <div className="grid grid-cols-2 gap-4 py-6">
+        <div className="grid grid-cols-2 gap-4 py-4">
           {images.map((image) => (
             <div
               key={image.id}
               onClick={() => setSelectedImage(image)}
-              className={`group relative bg-white/5 rounded-2xl overflow-hidden flex flex-col h-60 cursor-pointer transition-all duration-300 border ${
+              className={`group relative bg-white/5 rounded-2xl overflow-hidden flex flex-col h-56 cursor-pointer transition-all duration-300 border ${
                 selectedImage?.id === image.id ? "ring-2 ring-[#14b8a6]" : ""
               }`}
             >
