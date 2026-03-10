@@ -81,6 +81,7 @@ function App() {
     localStorage.setItem("bookmarkedImages", JSON.stringify(updated));
   };
 
+  const imageNo = import.meta.env.VITE_IMAGE_PER_REQ;
   // API Keys (Replace these with your actual keys)
   const API_KEYS = {
     unsplash: import.meta.env.VITE_UNSPLASH_KEY,
@@ -91,7 +92,7 @@ function App() {
   const PROVIDERS = {
     Unsplash: {
       buildUrl: (query, orientation, keys) =>
-        `https://api.unsplash.com/search/photos?query=${query}&orientation=${orientation}&client_id=${keys.unsplash}`,
+        `https://api.unsplash.com/search/photos?query=${query}&orientation=${orientation}&per_page=${imageNo}&client_id=${keys.unsplash}`,
 
       headers: () => ({}),
 
@@ -109,7 +110,7 @@ function App() {
 
     Pexels: {
       buildUrl: (query, orientation) =>
-        `https://api.pexels.com/v1/search?query=${query}&orientation=${orientation}`,
+        `https://api.pexels.com/v1/search?query=${query}&orientation=${orientation}&per_page=${imageNo}`,
 
       headers: (keys) => ({
         Authorization: keys.pexels,
@@ -136,7 +137,7 @@ function App() {
               ? "vertical"
               : "all";
 
-        return `https://pixabay.com/api/?key=${keys.pixabay}&q=${encodeURIComponent(query)}&orientation=${pixOrient}`;
+        return `https://pixabay.com/api/?key=${keys.pixabay}&q=${encodeURIComponent(query)}&orientation=${pixOrient}&per_page=${imageNo}`;
       },
 
       headers: () => ({}),
@@ -205,6 +206,20 @@ function App() {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const setAsBackground = () => {
+    if (!selectedImage?.url) return;
+
+    window.parent.postMessage(
+      {
+        type: "set-background",
+        imageUrl: selectedImage.url,
+        width: selectedImage.width,
+        height: selectedImage.height,
+      },
+      "*",
+    );
   };
 
   return (
@@ -354,7 +369,10 @@ function App() {
 
       {/* FOOTER ACTIONS */}
       <footer className="p-4 grid grid-cols-3 gap-3 border-t border-white/5 bg-[#0f0f12] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
-        <button className="flex flex-col items-center justify-center gap-1.5 py-3 bg-white/5 rounded-2xl text-slate-300 hover:bg-white/10 hover:text-white transition-all active:scale-95">
+        <button
+          onClick={setAsBackground}
+          className="flex flex-col items-center justify-center gap-1.5 py-3 bg-white/5 rounded-2xl text-slate-300 hover:bg-white/10 hover:text-white transition-all active:scale-95"
+        >
           <ImageIcon size={18} strokeWidth={1.5} />
           <span className="text-[12px] font-bold  tracking-tight">
             As Background
