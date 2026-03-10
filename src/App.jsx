@@ -8,6 +8,7 @@ import {
   Maximize,
   Hash,
   Loader2,
+  ArrowLeft,
 } from "lucide-react";
 
 const recentImages = [
@@ -49,12 +50,36 @@ function App() {
   const [images, setImages] = useState(recentImages); // This replaces your "recentImages"
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [bookmarks, setBookmarks] = useState([]);
+  const [showBookmarks, setShowBookmarks] = useState(false);
 
   useEffect(() => {
     if (searchQuery.trim()) {
       handleSearch();
     }
   }, [provider, orientation]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("bookmarkedImages");
+    if (saved) {
+      setBookmarks(JSON.parse(saved));
+    }
+  }, []);
+
+  const toggleBookmark = (image) => {
+    let updated;
+
+    const exists = bookmarks.find((img) => img.id === image.id);
+
+    if (exists) {
+      updated = bookmarks.filter((img) => img.id !== image.id);
+    } else {
+      updated = [...bookmarks, image];
+    }
+
+    setBookmarks(updated);
+    localStorage.setItem("bookmarkedImages", JSON.stringify(updated));
+  };
 
   // API Keys (Replace these with your actual keys)
   const API_KEYS = {
@@ -243,16 +268,28 @@ function App() {
             Insert
           </button>
 
-          <button className="px-3 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 hover:text-white transition-all">
-            <Bookmark size={16} />
-          </button>
+          {showBookmarks ? (
+            <button
+              onClick={() => setShowBookmarks(false)}
+              className="px-3 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 hover:text-white transition-all"
+            >
+              <ArrowLeft size={16} />
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowBookmarks(true)}
+              className="px-3 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 hover:text-white transition-all"
+            >
+              <Bookmark size={16} />
+            </button>
+          )}
         </div>
       </header>
 
       {/* MAIN GRID AREA */}
       <main className="flex-1 px-5 overflow-y-auto custom-scrollbar bg-[#0f0f12]">
         <div className="grid grid-cols-2 gap-4 py-4">
-          {images.map((image) => (
+          {(showBookmarks ? bookmarks : images).map((image) => (
             <div
               key={image.id}
               onClick={() => setSelectedImage(image)}
@@ -275,8 +312,21 @@ function App() {
                 {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                <button className="absolute top-3 right-3 p-1.5 rounded-lg bg-black/20 backdrop-blur-md border border-white/10 text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-teal-500 hover:border-teal-500">
-                  <Bookmark size={14} />
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleBookmark(image);
+                  }}
+                  className="absolute top-3 right-3 p-1.5 rounded-lg bg-black/20 backdrop-blur-md border border-white/10 text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-teal-500 hover:border-teal-500"
+                >
+                  <Bookmark
+                    size={14}
+                    fill={
+                      bookmarks.some((b) => b.id === image.id)
+                        ? "currentColor"
+                        : "none"
+                    }
+                  />
                 </button>
               </div>
 
