@@ -23,12 +23,9 @@ penpot.ui.onMessage(async (message) => {
 
       console.log(`Creating ${width}x${height} at (${x}, ${y})`);
 
-      const rect = penpot.createRectangle({
-        x,
-        y,
-        width,
-        height,
-      });
+      const rect = penpot.createRectangle();
+
+      rect.resize(width, height);
 
       rect.fills = [
         {
