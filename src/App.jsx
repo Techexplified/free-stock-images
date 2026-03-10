@@ -194,8 +194,9 @@ function App() {
       window.parent.postMessage(
         {
           type: "insert-image",
-          imageUrl: selectedImage.url, // Send URL first (faster)
-          imageData: null, // Fallback
+          photographer: selectedImage.name,
+          imageUrl: selectedImage.url,
+          imageData: null,
           width: selectedImage.width,
           height: selectedImage.height,
         },

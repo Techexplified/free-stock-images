@@ -17,14 +17,9 @@ penpot.ui.onMessage(async (message) => {
       const width = message.width || 800;
       const height = message.height || 600;
 
-      // FORCE ON-CANVAS: Top-left quadrant, visible
-      const x = 50;
-      const y = 50;
-
-      console.log(`Creating ${width}x${height} at (${x}, ${y})`);
-
       const rect = penpot.createRectangle();
 
+      rect.name = `Image by ${message.photographer}`;
       rect.resize(width, height);
 
       rect.fills = [
@@ -34,7 +29,7 @@ penpot.ui.onMessage(async (message) => {
         },
       ];
 
-      console.log("✅ Rect created. Check layers panel for size.");
+      console.log("✅ Rectangle created.");
     } catch (error) {
       console.error("❌ Error:", error);
     }
