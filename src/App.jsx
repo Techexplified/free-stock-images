@@ -289,7 +289,7 @@ function App() {
             />
           </div>
 
-          <button className="px-3 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 hover:text-white transition-all">
+          <button className="px-3 bg-white/5 invisible rounded-xl border border-white/5 hover:bg-white/10 hover:text-white transition-all">
             Insert
           </button>
 
@@ -393,10 +393,13 @@ function App() {
       </main>
 
       {/* FOOTER ACTIONS */}
-      <footer className="p-4 grid grid-cols-3 gap-3 border-t border-white/5 bg-[#0f0f12] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
+      <footer className="p-4 grid grid-cols-2 gap-3 border-t border-white/5 bg-[#0f0f12] shadow-[0_-10px_40px_rgba(0,0,0,0.4)]">
         <button
           onClick={setAsBackground}
           className="flex flex-col items-center justify-center gap-1.5 py-3 bg-white/5 rounded-2xl text-slate-300 hover:bg-white/10 hover:text-white transition-all active:scale-95"
+          style={{
+            backgroundColor: "#252529",
+          }}
         >
           <ImageIcon size={18} strokeWidth={1.5} />
           <span className="text-[12px] font-bold  tracking-tight">
@@ -407,6 +410,9 @@ function App() {
         <button
           onClick={insertIntoFrame}
           className={`flex flex-col items-center justify-center gap-1.5 py-3 bg-white/5 rounded-2xl text-slate-300 hover:bg-white/10 hover:text-white transition-all active:scale-95`}
+          style={{
+            backgroundColor: "#252529",
+          }}
         >
           <Hash size={20} strokeWidth={1.5} />
           <span className="text-[12px] font-bold  tracking-tight">
@@ -414,12 +420,12 @@ function App() {
           </span>
         </button>
 
-        <button className="flex flex-col items-center justify-center gap-1.5 py-3 bg-white/5 rounded-2xl text-slate-300 hover:bg-white/10 hover:text-white transition-all active:scale-95">
+        {/* <button className="flex flex-col items-center justify-center gap-1.5 py-3 bg-white/5 rounded-2xl text-slate-300 hover:bg-white/10 hover:text-white transition-all active:scale-95">
           <Maximize size={18} strokeWidth={1.5} />
           <span className="text-[12px] font-bold  tracking-tight">
             Auto-Size
           </span>
-        </button>
+        </button> */}
       </footer>
     </div>
   );
