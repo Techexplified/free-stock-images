@@ -52,12 +52,13 @@ function App() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [bookmarks, setBookmarks] = useState([]);
   const [showBookmarks, setShowBookmarks] = useState(false);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (searchQuery.trim()) {
       handleSearch();
     }
-  }, [provider, orientation]);
+  }, [provider, orientation, page]);
 
   useEffect(() => {
     const saved = localStorage.getItem("bookmarkedImages");
@@ -91,8 +92,8 @@ function App() {
 
   const PROVIDERS = {
     Unsplash: {
-      buildUrl: (query, orientation, keys) =>
-        `https://api.unsplash.com/search/photos?query=${query}&orientation=${orientation}&per_page=${imageNo}&client_id=${keys.unsplash}`,
+      buildUrl: (query, orientation, keys, page) =>
+        `https://api.unsplash.com/search/photos?query=${query}&orientation=${orientation}&per_page=${imageNo}&page=${page}&client_id=${keys.unsplash}`,
 
       headers: () => ({}),
 
@@ -109,8 +110,8 @@ function App() {
     },
 
     Pexels: {
-      buildUrl: (query, orientation) =>
-        `https://api.pexels.com/v1/search?query=${query}&orientation=${orientation}&per_page=${imageNo}`,
+      buildUrl: (query, orientation, page) =>
+        `https://api.pexels.com/v1/search?query=${query}&orientation=${orientation}&per_page=${imageNo}&page=${page}`,
 
       headers: (keys) => ({
         Authorization: keys.pexels,
@@ -129,7 +130,7 @@ function App() {
     },
 
     Pixabay: {
-      buildUrl: (query, orientation, keys) => {
+      buildUrl: (query, orientation, keys, page) => {
         const pixOrient =
           orientation === "landscape"
             ? "horizontal"
@@ -137,7 +138,7 @@ function App() {
               ? "vertical"
               : "all";
 
-        return `https://pixabay.com/api/?key=${keys.pixabay}&q=${encodeURIComponent(query)}&orientation=${pixOrient}&per_page=${imageNo}`;
+        return `https://pixabay.com/api/?key=${keys.pixabay}&q=${encodeURIComponent(query)}&orientation=${pixOrient}&per_page=${imageNo}&page=${page}`;
       },
 
       headers: () => ({}),
@@ -164,7 +165,12 @@ function App() {
     try {
       const providerConfig = PROVIDERS[provider];
 
-      const url = providerConfig.buildUrl(searchQuery, orientation, API_KEYS);
+      const url = providerConfig.buildUrl(
+        searchQuery,
+        orientation,
+        API_KEYS,
+        page,
+      );
 
       const headers = providerConfig.headers(API_KEYS);
 
@@ -173,7 +179,7 @@ function App() {
 
       const results = providerConfig.normalize(data);
 
-      setImages(results);
+      setImages((prev) => (page === 1 ? results : [...prev, ...results]));
     } catch (error) {
       console.error("Search failed:", error);
     } finally {
@@ -181,11 +187,14 @@ function App() {
     }
   };
 
-  console.log(selectedImage);
+  console.log(images);
 
   // Trigger search on Enter key
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") handleSearch();
+    if (e.key === "Enter") {
+      setPage(1);
+      handleSearch();
+    }
   };
 
   const insertIntoFrame = async () => {
@@ -365,6 +374,22 @@ function App() {
             </div>
           ))}
         </div>
+
+        {!showBookmarks && images.length > 0 && (
+          <div className="flex justify-center items-center w-full py-8">
+            <button
+              onClick={() => setPage((p) => p + 1)}
+              className="inline-flex items-center justify-center px-4 py-2 bg-white/5 rounded-lg transition-all duration-200"
+              style={{
+                backgroundColor: "#14b8a6",
+                color: "#1c1c21",
+                boxShadow: "0 4px 14px 0 rgba(20, 184, 166, 0.3)",
+              }}
+            >
+              Load More
+            </button>
+          </div>
+        )}
       </main>
 
       {/* FOOTER ACTIONS */}
