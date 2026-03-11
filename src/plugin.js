@@ -48,6 +48,8 @@ penpot.ui.onMessage(async (message) => {
 
       const bg = penpot.createRectangle();
 
+      bg.name = `Image by ${message.photographer}`;
+
       bg.x = pageBounds.x;
       bg.y = pageBounds.y;
 

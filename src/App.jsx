@@ -224,6 +224,7 @@ function App() {
       {
         type: "set-background",
         imageUrl: selectedImage.url,
+        photographer: selectedImage.name,
         width: selectedImage.width,
         height: selectedImage.height,
       },
