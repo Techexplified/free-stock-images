@@ -278,9 +278,9 @@ function App() {
               onChange={(e) => setProvider(e.target.value)}
               className="w-full text-xs appearance-none pl-3 pr-8 py-2 bg-[#252529] rounded-lg font-semibold text-white border border-gray-800 outline-none cursor-pointer"
             >
-              <option value="Unsplash">Unsplash</option>
-              <option value="Pexels">Pexels</option>
               <option value="Pixabay">Pixabay</option>
+              <option value="Pexels">Pexels</option>
+              <option value="Unsplash">Unsplash</option>
             </select>
             <ChevronDown
               size={14}
