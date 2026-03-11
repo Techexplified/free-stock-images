@@ -47,12 +47,13 @@ function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [provider, setProvider] = useState("Unsplash");
   const [orientation, setOrientation] = useState("landscape");
-  const [images, setImages] = useState(recentImages); // This replaces your "recentImages"
+  const [images, setImages] = useState([]); // This replaces your "recentImages"
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [bookmarks, setBookmarks] = useState([]);
   const [showBookmarks, setShowBookmarks] = useState(false);
   const [page, setPage] = useState(1);
+  const [hasSearched, setHasSearched] = useState(false);
 
   useEffect(() => {
     if (searchQuery.trim()) {
@@ -160,6 +161,7 @@ function App() {
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
 
+    setHasSearched(true);
     setLoading(true);
 
     try {
@@ -186,8 +188,6 @@ function App() {
       setLoading(false);
     }
   };
-
-  console.log(images);
 
   // Trigger search on Enter key
   const handleKeyDown = (e) => {
@@ -228,6 +228,20 @@ function App() {
         height: selectedImage.height,
       },
       "*",
+    );
+  };
+
+  const EmptyState = ({ icon: Icon, title, description }) => {
+    return (
+      <div className="flex flex-col items-center justify-center text-center py-16 px-6 text-slate-400">
+        <div className="p-4 rounded-2xl bg-white/5 mb-4">
+          <Icon size={32} className="text-teal-400" />
+        </div>
+
+        <h3 className="text-sm font-semibold text-white mb-1">{title}</h3>
+
+        <p className="text-sm text-slate-500 max-w-[220px]">{description}</p>
+      </div>
     );
   };
 
@@ -312,68 +326,102 @@ function App() {
       </header>
 
       {/* MAIN GRID AREA */}
+
       <main className="flex-1 px-5 overflow-y-auto custom-scrollbar bg-[#0f0f12]">
-        <div className="grid grid-cols-2 gap-4 py-4">
-          {(showBookmarks ? bookmarks : images).map((image) => (
-            <div
-              key={image.id}
-              onClick={() => setSelectedImage(image)}
-              className={`group relative bg-white/5 rounded-2xl overflow-hidden flex flex-col h-56 cursor-pointer transition-all duration-300 border ${
-                selectedImage?.id === image.id ? "ring-2 ring-[#14b8a6]" : ""
-              }`}
-            >
-              {/* Image Container */}
-              <div className="flex-1 relative overflow-hidden">
-                {image.url ? (
-                  <img
-                    src={image.url}
-                    alt={image.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                ) : (
-                  <div className={`w-full h-full ${image.color}`} />
-                )}
+        {/* FIRST TIME STATE */}
+        {!hasSearched && !showBookmarks && (
+          <EmptyState
+            icon={Search}
+            title="Search for beautiful images"
+            description="Find high-quality images from Unsplash, Pexels, and Pixabay to use
+          directly inside your Penpot designs."
+          />
+        )}
 
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        {/* BOOKMARK EMPTY STATE */}
+        {showBookmarks && bookmarks.length === 0 && (
+          <EmptyState
+            icon={Bookmark}
+            title="No saved images"
+            description="Bookmark images to quickly access them later."
+          />
+        )}
 
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleBookmark(image);
-                  }}
-                  className="absolute top-3 right-3 p-1.5 rounded-lg bg-black/20 backdrop-blur-md border border-white/10 text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-teal-500 hover:border-teal-500"
+        {/* SEARCH EMPTY STATE */}
+        {hasSearched && !showBookmarks && !loading && images.length === 0 && (
+          <EmptyState
+            icon={Search}
+            title="No images found"
+            description="Try a different keyword or adjust the filters."
+          />
+        )}
+
+        {(showBookmarks ? bookmarks : images).length > 0 && (
+          <div className="grid grid-cols-2 gap-4 py-4">
+            {hasSearched &&
+              (showBookmarks ? bookmarks : images).map((image) => (
+                <div
+                  key={image.id}
+                  onClick={() => setSelectedImage(image)}
+                  className={`group relative bg-white/5 rounded-2xl overflow-hidden flex flex-col h-56 cursor-pointer transition-all duration-300 border ${
+                    selectedImage?.id === image.id
+                      ? "ring-2 ring-[#14b8a6]"
+                      : ""
+                  }`}
                 >
-                  <Bookmark
-                    size={14}
-                    fill={
-                      bookmarks.some((b) => b.id === image.id)
-                        ? "currentColor"
-                        : "none"
-                    }
-                  />
-                </button>
-              </div>
+                  {/* Image Container */}
+                  <div className="flex-1 relative overflow-hidden">
+                    {image.url ? (
+                      <img
+                        src={image.url}
+                        alt={image.name}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                    ) : (
+                      <div className={`w-full h-full ${image.color}`} />
+                    )}
 
-              {/* Metadata */}
-              <div className="p-3 bg-[#16161a]">
-                <p className="text-[11px] font-semibold text-white truncate mb-2">
-                  {image.name}
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex gap-1.5">
-                    <span className="text-[9px] bg-teal-500/10 text-teal-400 px-2 py-0.5 rounded-md font-bold border border-teal-500/20">
-                      {image.source}
-                    </span>
-                    <span className="text-[9px] bg-white/5 text-slate-400 px-2 py-0.5 rounded-md font-bold">
-                      {image.size}
-                    </span>
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleBookmark(image);
+                      }}
+                      className="absolute top-3 right-3 p-1.5 rounded-lg bg-black/20 backdrop-blur-md border border-white/10 text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-teal-500 hover:border-teal-500"
+                    >
+                      <Bookmark
+                        size={14}
+                        fill={
+                          bookmarks.some((b) => b.id === image.id)
+                            ? "currentColor"
+                            : "none"
+                        }
+                      />
+                    </button>
+                  </div>
+
+                  {/* Metadata */}
+                  <div className="p-3 bg-[#16161a]">
+                    <p className="text-[11px] font-semibold text-white truncate mb-2">
+                      {image.name}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-1.5">
+                        <span className="text-[9px] bg-teal-500/10 text-teal-400 px-2 py-0.5 rounded-md font-bold border border-teal-500/20">
+                          {image.source}
+                        </span>
+                        <span className="text-[9px] bg-white/5 text-slate-400 px-2 py-0.5 rounded-md font-bold">
+                          {image.size}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              ))}
+          </div>
+        )}
 
         {!showBookmarks && images.length > 0 && (
           <div className="flex justify-center items-center w-full py-8">
