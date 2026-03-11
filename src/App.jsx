@@ -11,43 +11,11 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
-const recentImages = [
-  {
-    id: 1,
-    name: "John Doe",
-    size: "4K",
-    source: "PEXELS",
-    color: "bg-[#2a2a35]",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    size: "HD",
-    source: "UNSPLASH",
-    color: "bg-[#2a1d35]",
-  },
-  {
-    id: 3,
-    name: "Mike Johnson",
-    size: "FHD",
-    source: "PIXABAY",
-    color: "bg-[#1d2a35]",
-  },
-  {
-    id: 4,
-    name: "Sarah Lee",
-    size: "2K",
-    source: "PEXELS",
-    color: "bg-[#2a2525]",
-  },
-];
-
 function App() {
-  // 1. State Management
   const [searchQuery, setSearchQuery] = useState("");
   const [provider, setProvider] = useState("Unsplash");
   const [orientation, setOrientation] = useState("landscape");
-  const [images, setImages] = useState([]); // This replaces your "recentImages"
+  const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [bookmarks, setBookmarks] = useState([]);
