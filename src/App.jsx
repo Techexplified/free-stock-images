@@ -13,7 +13,7 @@ import {
 
 function App() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [provider, setProvider] = useState("Unsplash");
+  const [provider, setProvider] = useState("Pixabay");
   const [orientation, setOrientation] = useState("landscape");
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -79,7 +79,7 @@ function App() {
     },
 
     Pexels: {
-      buildUrl: (query, orientation, page) =>
+      buildUrl: (query, orientation, keys, page) =>
         `https://api.pexels.com/v1/search?query=${query}&orientation=${orientation}&per_page=${imageNo}&page=${page}`,
 
       headers: (keys) => ({
@@ -243,7 +243,11 @@ function App() {
           <div className="flex-1 relative group">
             <select
               value={provider}
-              onChange={(e) => setProvider(e.target.value)}
+              onChange={(e) => {
+                setImages([]);
+                setPage(1);
+                setProvider(e.target.value);
+              }}
               className="w-full text-xs appearance-none pl-3 pr-8 py-2 bg-[#252529] rounded-lg font-semibold text-white border border-gray-800 outline-none cursor-pointer"
             >
               <option value="Pixabay">Pixabay</option>
@@ -259,7 +263,11 @@ function App() {
           <div className="flex-1 relative">
             <select
               value={orientation}
-              onChange={(e) => setOrientation(e.target.value.toLowerCase())}
+              onChange={(e) => {
+                setImages([]);
+                setPage(1);
+                setOrientation(e.target.value.toLowerCase());
+              }}
               className="w-full  text-xs  appearance-none pl-3 pr-8 py-2 bg-[#252529] rounded-lg font-semibold text-white border border-gray-800 outline-none cursor-pointer"
             >
               <option value="landscape">Landscape</option>
